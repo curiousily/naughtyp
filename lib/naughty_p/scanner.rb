@@ -7,6 +7,7 @@ module NaughtyP
       @current_char_position = 0
       @next_char = @source_code[@current_char_position]
       @keywords = Set.new %W(OR DIV MOD AND NOT READ WRITE)
+      @special_symbols = Set.new %w{( ) + - * :=}
     end
 
     def next_token
@@ -32,6 +33,13 @@ module NaughtyP
           return PToken.new(PToken::KEYWORD, value)
         end
         return PToken.new(PToken::IDENT, value)
+      end
+      if @special_symbols.include? @next_char
+        return PToken.new(PToken::SPECIAL_SYMBOL, @next_char.to_s)
+      end
+      if @next_char == ':' && @source_code[@current_char_position + 1] == '='
+        read_next_char
+        return PToken.new(PToken::SPECIAL_SYMBOL, ":=")
       end
       if @next_char == ';'
         PToken.new(PToken::SEMICOLON)

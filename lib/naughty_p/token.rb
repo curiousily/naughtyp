@@ -8,6 +8,7 @@ module NaughtyP
     SEMICOLON = 3
     IDENT = 4
     KEYWORD = 5
+    SPECIAL_SYMBOL = 6
 
     def initialize(type, value = nil)
       @type = type
