@@ -2,7 +2,7 @@ require "naughty_p"
 require "spec_helper"
 include NaughtyP
 
-describe "Scanner#next_token" do
+describe "Lexer#next_token" do
 
   it "should return EOF token when empty source is passed" do
     next_token_type_of("").should eql_token_type PToken::EOF
@@ -33,7 +33,7 @@ describe "Scanner#next_token" do
   end
 
   it "should return Keyword token when source contains 'DIV'" do
-    next_token_type_of("DIV").should eql_token_type  PToken::KEYWORD
+    next_token_type_of("DIV").should eql_token_type PToken::KEYWORD
   end
 
   it "should return MOD token value when source contains 'MOD '" do
@@ -53,22 +53,28 @@ describe "Scanner#next_token" do
   end
 
   it "should return SpecialSymbol token when source contains 'ABC :=' and next_token is called 2 times" do
-    scanner = scanner_for("ABC :=")
-    scanner.next_token
-    token_type_of(scanner.next_token).should eql_token_type PToken::SPECIAL_SYMBOL
+    lexer = lexer_for("ABC :=")
+    lexer.next_token
+    token_type_of(lexer.next_token).should eql_token_type PToken::SPECIAL_SYMBOL
   end
 
   it "should return Numeric token when source contains 'ABC := 123' and next_token is called 3 times" do
-    scanner = scanner_for("ABC := 123")
-    scanner.next_token
-    scanner.next_token
-    token_type_of(scanner.next_token).should eql_token_type PToken::NUMERIC
+    lexer = lexer_for("ABC := 123")
+    lexer.next_token
+    lexer.next_token
+    token_type_of(lexer.next_token).should eql_token_type PToken::NUMERIC
   end
 
   it "should return 123 token value when source contains 'ABC := 123' and next_token is called 3 times" do
-    scanner = scanner_for("ABC := 123")
-    scanner.next_token
-    scanner.next_token
-    token_value_of(scanner.next_token).should eql_token_value 123
+    lexer = lexer_for("ABC := 123")
+    lexer.next_token
+    lexer.next_token
+    token_value_of(lexer.next_token).should eql_token_value 123
+  end
+
+  it "should return Keyword token when source contains '2DIV3' and next_token is called 2 times" do
+    lexer = lexer_for("2DIV3")
+    lexer.next_token
+    token_type_of(lexer.next_token).should eql_token_type PToken::KEYWORD
   end
 end

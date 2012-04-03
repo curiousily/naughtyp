@@ -1,6 +1,7 @@
 require "naughty_p/version"
 require "naughty_p/token"
 require "naughty_p/scanner"
+require "naughty_p/parser"
 require 'bitescript'
 
 include BiteScript

@@ -31,9 +31,13 @@ def next_token_value_of(source_code)
 end
 
 def next_token_of(source_code)
-  scanner_for(source_code).next_token
+  lexer_for(source_code).next_token
 end
 
-def scanner_for(source_code)
-  Scanner.new(source_code)
+def lexer_for(source_code)
+  Lexer.new(source_code)
+end
+
+def eval_expression(expression)
+  Parser.new.eval_expression(expression)
 end

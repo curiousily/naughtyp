@@ -1,7 +1,8 @@
 require "set"
 
 module NaughtyP
-  class Scanner
+  class Lexer
+
     def initialize source_code
       @source_code = source_code.chars.to_a
       @current_char_position = 0
@@ -28,9 +29,9 @@ module NaughtyP
         while bounded_by?(@current_char_position, @source_code.length) && (letter?(@next_char) || digit?(@next_char))
           value << @next_char
           read_next_char
-        end
-        if @keywords.include? value
-          return PToken.new(PToken::KEYWORD, value)
+          if @keywords.include? value
+            return PToken.new(PToken::KEYWORD, value)
+          end
         end
         return PToken.new(PToken::IDENT, value)
       end
@@ -50,9 +51,22 @@ module NaughtyP
       end
     end
 
+    def self.from_file filename
+      Lexer.new(IO.read(filename))
+    end
+
+    private
+
     def read_next_char
       @current_char_position += 1
       @next_char = @source_code[@current_char_position]
+    end
+
+    def skip_white_space
+      while @next_char == ' '
+        @current_char_position += 1
+        @next_char = @source_code[@current_char_position]
+      end
     end
 
     def digit?(char)
@@ -65,19 +79,6 @@ module NaughtyP
 
     def bounded_by?(item, upper_bound)
       item < upper_bound
-    end
-
-    def self.from_file filename
-      Scanner.new(IO.read(filename))
-    end
-
-    private
-
-    def skip_white_space()
-      while @next_char == ' '
-        @current_char_position += 1
-        @next_char = @source_code[@current_char_position]
-      end
     end
   end
 end
