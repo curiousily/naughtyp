@@ -1,14 +1,17 @@
+require "set"
+
 module NaughtyP
   class Scanner
     def initialize source_code
       @source_code = source_code.chars.to_a
       @current_char_position = 0
       @next_char = @source_code[@current_char_position]
+      @keywords = Set.new %W(OR DIV MOD AND NOT READ WRITE)
     end
 
     def next_token
       skip_white_space
-      return NaughtyP::Token.new(Token::EOF) if @current_char_position >= @source_code.length
+      return PToken.new(PToken::EOF) if @current_char_position >= @source_code.length
       if digit?(@next_char)
         value = @next_char.to_s
         read_next_char
@@ -16,7 +19,7 @@ module NaughtyP
           value << @next_char
           read_next_char
         end
-        return NaughtyP::Token.new(Token::NUMERIC, Integer(value))
+        return PToken.new(PToken::NUMERIC, Integer(value))
       end
       if letter?(@next_char)
         value = @next_char.to_s
@@ -25,10 +28,13 @@ module NaughtyP
           value << @next_char
           read_next_char
         end
-        return NaughtyP::Token.new(Token::IDENT, value)
+        if @keywords.include? value
+          return PToken.new(PToken::KEYWORD, value)
+        end
+        return PToken.new(PToken::IDENT, value)
       end
       if @next_char == ';'
-        NaughtyP::Token.new(Token::SEMICOLON)
+        PToken.new(PToken::SEMICOLON)
       end
     end
 

@@ -1,5 +1,5 @@
 module NaughtyP
-  class Token
+  class PToken
 
     attr_reader :type, :value
 
@@ -7,6 +7,7 @@ module NaughtyP
     NUMERIC = 2
     SEMICOLON = 3
     IDENT = 4
+    KEYWORD = 5
 
     def initialize(type, value = nil)
       @type = type
