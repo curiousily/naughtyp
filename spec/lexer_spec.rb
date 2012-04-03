@@ -28,6 +28,10 @@ describe "Lexer#next_token" do
     next_token_type_of("ABC").should eql_token_type PToken::IDENT
   end
 
+  it "should return ABC token value when source contains 'ABC'" do
+    next_token_value_of("ABC").should eql_token_value "ABC"
+  end
+
   it "should return Ident token when source contains 'ABC '" do
     next_token_type_of("ABC ").should eql_token_type PToken::IDENT
   end
@@ -77,4 +81,21 @@ describe "Lexer#next_token" do
     lexer.next_token
     token_type_of(lexer.next_token).should eql_token_type PToken::KEYWORD
   end
+end
+
+describe "Lexer#peek_next" do
+
+  it "should have 'ABC' value for peek token when source contains 'ABC 2'" do
+    lexer = lexer_for("ABC 2")
+    peek_token = lexer.peek_next
+    token_value_of(peek_token).should eql_token_value "ABC"
+  end
+
+  it "should have 'ABC' value for next token value when source contains 'ABC 2' and peek_token is called 1 time" do
+    lexer = lexer_for("ABC 2")
+    lexer.peek_next
+    next_token = lexer.next_token
+    token_value_of(next_token).should eql_token_value "ABC"
+  end
+
 end

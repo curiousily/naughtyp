@@ -51,6 +51,16 @@ module NaughtyP
       end
     end
 
+    def peek_next
+      return PToken.new(PToken::EOF) unless bounded_by?(@current_char_position, @source_code.length)
+      old_char_position = @current_char_position
+      old_next_char = @next_char[0]
+      result = next_token
+      @current_char_position = old_char_position
+      @next_char = old_next_char.chr
+      result
+    end
+
     def self.from_file filename
       Lexer.new(IO.read(filename))
     end
