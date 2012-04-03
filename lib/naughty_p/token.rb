@@ -6,6 +6,7 @@ module NaughtyP
     EOF = 1
     NUMERIC = 2
     SEMICOLON = 3
+    IDENT = 4
 
     def initialize(type, value = nil)
       @type = type
