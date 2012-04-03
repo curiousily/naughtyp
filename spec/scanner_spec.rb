@@ -2,7 +2,7 @@ require "naughty_p"
 require "spec_helper"
 include NaughtyP
 
-describe "Lexer#next_token" do
+describe "Scanner#next_token" do
 
   it "should return EOF token when empty source is passed" do
     next_token_type_of("").should eql_token_type PToken::EOF
@@ -57,44 +57,44 @@ describe "Lexer#next_token" do
   end
 
   it "should return SpecialSymbol token when source contains 'ABC :=' and next_token is called 2 times" do
-    lexer = lexer_for("ABC :=")
-    lexer.next_token
-    token_type_of(lexer.next_token).should eql_token_type PToken::SPECIAL_SYMBOL
+    scanner = scanner_for("ABC :=")
+    scanner.next_token
+    token_type_of(scanner.next_token).should eql_token_type PToken::SPECIAL_SYMBOL
   end
 
   it "should return Numeric token when source contains 'ABC := 123' and next_token is called 3 times" do
-    lexer = lexer_for("ABC := 123")
-    lexer.next_token
-    lexer.next_token
-    token_type_of(lexer.next_token).should eql_token_type PToken::NUMERIC
+    scanner = scanner_for("ABC := 123")
+    scanner.next_token
+    scanner.next_token
+    token_type_of(scanner.next_token).should eql_token_type PToken::NUMERIC
   end
 
   it "should return 123 token value when source contains 'ABC := 123' and next_token is called 3 times" do
-    lexer = lexer_for("ABC := 123")
-    lexer.next_token
-    lexer.next_token
-    token_value_of(lexer.next_token).should eql_token_value 123
+    scanner = scanner_for("ABC := 123")
+    scanner.next_token
+    scanner.next_token
+    token_value_of(scanner.next_token).should eql_token_value 123
   end
 
   it "should return Keyword token when source contains '2DIV3' and next_token is called 2 times" do
-    lexer = lexer_for("2DIV3")
-    lexer.next_token
-    token_type_of(lexer.next_token).should eql_token_type PToken::KEYWORD
+    scanner = scanner_for("2DIV3")
+    scanner.next_token
+    token_type_of(scanner.next_token).should eql_token_type PToken::KEYWORD
   end
 end
 
-describe "Lexer#peek_next" do
+describe "Scanner#peek_next" do
 
   it "should have 'ABC' value for peek token when source contains 'ABC 2'" do
-    lexer = lexer_for("ABC 2")
-    peek_token = lexer.peek_next
+    scanner = scanner_for("ABC 2")
+    peek_token = scanner.peek
     token_value_of(peek_token).should eql_token_value "ABC"
   end
 
   it "should have 'ABC' value for next token value when source contains 'ABC 2' and peek_token is called 1 time" do
-    lexer = lexer_for("ABC 2")
-    lexer.peek_next
-    next_token = lexer.next_token
+    scanner = scanner_for("ABC 2")
+    scanner.peek
+    next_token = scanner.next_token
     token_value_of(next_token).should eql_token_value "ABC"
   end
 

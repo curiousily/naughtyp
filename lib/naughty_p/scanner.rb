@@ -1,7 +1,7 @@
 require "set"
 
 module NaughtyP
-  class Lexer
+  class Scanner
 
     def initialize source_code
       @source_code = source_code.chars.to_a
@@ -51,7 +51,7 @@ module NaughtyP
       end
     end
 
-    def peek_next
+    def peek
       return PToken.new(PToken::EOF) unless bounded_by?(@current_char_position, @source_code.length)
       old_char_position = @current_char_position
       old_next_char = @next_char[0]
@@ -62,7 +62,7 @@ module NaughtyP
     end
 
     def self.from_file filename
-      Lexer.new(IO.read(filename))
+      Scanner.new(IO.read(filename))
     end
 
     private

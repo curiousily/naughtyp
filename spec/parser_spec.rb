@@ -43,4 +43,24 @@ describe "Parser#eval_expression" do
   it "should evaluate to 9 when expression is '(5 + (2 * 2))'" do
     eval_expression("(5 + (2 * 2))").should eql 9
   end
+
+  it "should evaluate to 9 when expression is '5 + 2 * 2'" do
+    eval_expression("5 + 2 * 2").should eql 9
+  end
+
+  it "should evaluate to 9 when expression is '2 * 2 + 5'" do
+    eval_expression("2 * 2 + 5").should eql 9
+  end
+
+  it "should evaluate to 19 when expression is '2 * 2 + (5 + 10)'" do
+    eval_expression("2 * 2 + (5 + 10)").should eql 19
+  end
+
+  it "should evaluate to 19 when expression is '(2 * 2) + (5 + 10)'" do
+    eval_expression("(2 * 2) + (5 + 10)").should eql 19
+  end
+
+  it "should evaluate to 11 when expression is '2 + (5 + 2 * 2)'" do
+    eval_expression("2 + (5 + 2 * 2)").should eql 11
+  end
 end
