@@ -51,4 +51,24 @@ describe "Scanner#next_token" do
   it "should return := value when source contains ':= '" do
     next_token_value_of(":=").should eql_token_value ":="
   end
+
+  it "should return SpecialSymbol token when source contains 'ABC :=' and next_token is called 2 times" do
+    scanner = scanner_for("ABC :=")
+    scanner.next_token
+    token_type_of(scanner.next_token).should eql_token_type PToken::SPECIAL_SYMBOL
+  end
+
+  it "should return Numeric token when source contains 'ABC := 123' and next_token is called 3 times" do
+    scanner = scanner_for("ABC := 123")
+    scanner.next_token
+    scanner.next_token
+    token_type_of(scanner.next_token).should eql_token_type PToken::NUMERIC
+  end
+
+  it "should return 123 token value when source contains 'ABC := 123' and next_token is called 3 times" do
+    scanner = scanner_for("ABC := 123")
+    scanner.next_token
+    scanner.next_token
+    token_value_of(scanner.next_token).should eql_token_value 123
+  end
 end

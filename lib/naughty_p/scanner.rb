@@ -35,13 +35,17 @@ module NaughtyP
         return PToken.new(PToken::IDENT, value)
       end
       if @special_symbols.include? @next_char
-        return PToken.new(PToken::SPECIAL_SYMBOL, @next_char.to_s)
+        token = PToken.new(PToken::SPECIAL_SYMBOL, @next_char.to_s)
+        read_next_char
+        return token
       end
       if @next_char == ':' && @source_code[@current_char_position + 1] == '='
+        read_next_char
         read_next_char
         return PToken.new(PToken::SPECIAL_SYMBOL, ":=")
       end
       if @next_char == ';'
+        read_next_char
         PToken.new(PToken::SEMICOLON)
       end
     end
