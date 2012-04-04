@@ -81,6 +81,12 @@ describe "Scanner#next_token" do
     scanner.next_token
     token_type_of(scanner.next_token).should eql_token_type PToken::KEYWORD
   end
+
+  it "should return 'WRITE' token value when source is new_line_test.np and next_token is called 2 times" do
+    scanner = scanner_from_file("new_line_test.np")
+    scanner.next_token
+    token_value_of(scanner.next_token).should eql_token_value "WRITE"
+  end
 end
 
 describe "Scanner#peek_next" do

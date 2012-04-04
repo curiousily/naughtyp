@@ -34,9 +34,13 @@ module NaughtyP
     end
 
     def print_int(store_index, number)
-      @method.bipush number
-      @method.istore store_index
+      create_local_variable(store_index, number)
       print_read_int(store_index)
+    end
+
+    def create_local_variable(store_index, value)
+      @method.bipush value
+      @method.istore store_index
     end
 
     def build

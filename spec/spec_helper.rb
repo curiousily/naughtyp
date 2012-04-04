@@ -38,6 +38,14 @@ def scanner_for(source_code)
   Scanner.new(source_code)
 end
 
+def scanner_from_file(filename)
+  Scanner::from_file(filename)
+end
+
 def eval_expression(expression)
-  Parser.new.eval_expression(expression)
+  parser_for(expression).eval_expression
+end
+
+def parser_for(source_code)
+  Parser.new(source_code, "dummy_filename")
 end

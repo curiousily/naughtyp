@@ -73,7 +73,7 @@ module NaughtyP
     end
 
     def skip_white_space
-      while @next_char == ' '
+      while @next_char == ' ' || @next_char == "\n"
         @current_char_position += 1
         @next_char = @source_code[@current_char_position]
       end

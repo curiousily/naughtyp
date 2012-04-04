@@ -3,5 +3,5 @@
 $: << File.dirname(File.dirname(__FILE__)) + "/lib"
 require 'naughty_p'
 
-NaughtyP::compile("READ A; WRITE A;", "HelloWorld.np")
+NaughtyP::compile("A := 10; WRITE A;", "HelloWorld.np")
 puts "Compilation successful"
