@@ -24,8 +24,20 @@ describe "Parser#eval_expression" do
     eval_expression("3*2").should eql 6
   end
 
+  it "should evaluate to 8 when expression is '2*2*2'" do
+    eval_expression("2*2*2").should eql 8
+  end
+
+  it "should evaluate to 3 when expressions is '3*3DIV3'" do
+    eval_expression("3*3DIV3").should eql 3
+  end
+
   it "should evaluate to 3 when expression is '6 DIV 2'" do
     eval_expression("6DIV2").should eql 3
+  end
+
+  it "should evaluate to 4 when expression is '2 + 10 DIV 5'" do
+    eval_expression("2 + 10 DIV 5").should eql 4
   end
 
   it "should evaluate to 2 when expression is '(2)'" do

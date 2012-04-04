@@ -97,7 +97,7 @@ describe "Scanner#peek_next" do
     token_value_of(peek_token).should eql_token_value "ABC"
   end
 
-  it "should have 'ABC' value for next token value when source contains 'ABC 2' and peek_token is called 1 time" do
+  it "should have 'ABC' value for next token value when source contains 'ABC 2' and peek is called 1 time" do
     scanner = scanner_for("ABC 2")
     scanner.peek
     next_token = scanner.next_token

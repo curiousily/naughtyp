@@ -5,6 +5,8 @@ module NaughtyP
     READ_OPERATOR = "READ"
     ASSIGN_OPERATOR = ":="
     SEMICOLON = ";"
+    OPENING_BRACKET = "("
+    CLOSING_BRACKET = ")"
 
     def initialize(source, file_name)
       @scanner = Scanner.new(source)
@@ -31,7 +33,6 @@ module NaughtyP
         if semicolon_token.type != PToken::SEMICOLON
           raise "Semicolon expected"
         end
-        #@local_variables[variable_token.value] = @local_variables.length
         add_variable(variable_token.value)
         @emitter.read_int(@local_variables[variable_token.value].store_index)
         eval_source
@@ -60,7 +61,6 @@ module NaughtyP
         end
         @emitter.create_local_variable(@local_variables.length, variable_value)
         add_variable(next_token.value, variable_value)
-        #@local_variables[next_token.value] = @local_variables.length
         eval_source
       end
     end
@@ -76,26 +76,20 @@ module NaughtyP
 
     def eval_expression
       token = @scanner.next_token
-
-      case token.type
-        when PToken::SPECIAL_SYMBOL
-          if token.value == "("
-            result = eval_expression
-            bracket_token = @scanner.next_token
-            if bracket_token.type == PToken::SPECIAL_SYMBOL && bracket_token.value == ")"
-              if @scanner.peek.type != PToken::EOF && @scanner.peek.value != ")"
-                @scanner.next_token
-                return result + eval_expression
-              end
-              return result
-            else
-              raise "closing bracket expected"
-            end
-          else
-            raise "opening bracket expected"
+      if token.value == OPENING_BRACKET
+        result = eval_expression
+        bracket_token = @scanner.next_token
+        if bracket_token.type == PToken::SPECIAL_SYMBOL && bracket_token.value == CLOSING_BRACKET
+          if @scanner.peek.type != PToken::EOF && @scanner.peek.value != CLOSING_BRACKET
+            @scanner.next_token
+            return result + eval_expression
           end
+          return result
         else
-          return eval_next(token)
+          raise "closing bracket expected"
+        end
+      else
+        eval_next(token)
       end
     end
 
@@ -109,7 +103,7 @@ module NaughtyP
         end
       end
       next_token = @scanner.peek
-      if next_token.type == PToken::EOF || next_token.value == ")" || next_token.type == PToken::SEMICOLON
+      if next_token.type == PToken::EOF || next_token.value == CLOSING_BRACKET || next_token.type == PToken::SEMICOLON
         return Integer(token_value)
       end
       next_token = @scanner.next_token
@@ -119,21 +113,39 @@ module NaughtyP
         when "-"
           return token_value - eval_expression
         when "*"
-          after_next_token = @scanner.peek
-          if after_next_token.type == PToken::NUMERIC
-            @scanner.next_token
-            if @scanner.peek.value == "+"
-              @scanner.next_token
-              return token_value * after_next_token.value + eval_expression
-            end
-            return token_value * after_next_token.value
-          end
-          return token_value * eval_expression
+          return multiply(token_value)
         when "DIV"
-          return token_value / eval_expression
+          return divide(token_value)
         else
           #invalid token event
           raise "Invalid token in expression"
+      end
+    end
+
+    def multiply(left_hand_value)
+      make_high_precedence_operation(left_hand_value, "*")
+    end
+
+    def divide(left_hand_value)
+      make_high_precedence_operation(left_hand_value, "/")
+    end
+
+    def make_high_precedence_operation(left_hand_value, operation)
+      right_hand_token = @scanner.peek
+      if right_hand_token.type == PToken::NUMERIC
+        @scanner.next_token
+        sign_token = @scanner.peek
+        result = eval("left_hand_value #{operation} right_hand_token.value")
+        if sign_token.value == "DIV"
+          sign_token.value = "/"
+        end
+        recognised_operations = Set.new %W(+ - * /)
+        if recognised_operations.include? sign_token.value
+          @scanner.next_token
+          eval("result #{sign_token.value} eval_expression")
+        else
+          result
+        end
       end
     end
   end

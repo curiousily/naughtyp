@@ -1,7 +1,7 @@
 module NaughtyP
   class PToken
 
-    attr_reader :type, :value
+    attr_accessor :type, :value
 
     EOF = 1
     NUMERIC = 2
