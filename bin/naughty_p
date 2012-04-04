@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+$: << File.dirname(File.dirname(__FILE__)) + "/lib"
+require 'naughty_p'
+
+NaughtyP::compile("READ A; WRITE A;", "HelloWorld.np")
+puts "Compilation successful"

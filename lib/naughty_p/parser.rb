@@ -1,6 +1,54 @@
 module NaughtyP
   class Parser
 
+    WRITE_OPERATOR = "WRITE"
+    READ_OPERATOR = "READ"
+
+    def initialize(source, file_name)
+      @scanner = Scanner.new(source)
+      @local_variables = Hash.new
+      @emitter = Emitter.new(file_name)
+    end
+
+    def eval_source
+      next_token = @scanner.next_token
+      if next_token.type == PToken::KEYWORD && next_token.value == READ_OPERATOR
+        variable_token = @scanner.next_token
+        if variable_token.type != PToken::IDENT
+          raise "Variable expected"
+        end
+        semicolon_token = @scanner.next_token
+        if semicolon_token.type != PToken::SEMICOLON
+          raise "Semicolon expected"
+        end
+        @local_variables[variable_token.value] = @local_variables.length
+        @emitter.read_int(@local_variables[variable_token.value])
+      end
+      next_token = @scanner.next_token
+      if next_token.type == PToken::KEYWORD && next_token.value == WRITE_OPERATOR
+        variable_token = @scanner.next_token
+        if variable_token.type != PToken::IDENT
+          raise "Variable expected"
+        end
+        semicolon_token = @scanner.next_token
+        if semicolon_token.type != PToken::SEMICOLON
+          raise "Semicolon expected"
+        end
+        @emitter.print_read_int(@local_variables[variable_token.value])
+      end
+
+    end
+
+    def build
+      @emitter.print_int(@local_variables.length, 15)
+      file_builder = @emitter.build
+      file_builder.generate do |filename, class_builder|
+        File.open(filename, 'w') do |file|
+          file.write(class_builder.generate)
+        end
+      end
+    end
+
     def eval_expression(expression)
       scanner = Scanner.new(expression)
       eval(scanner)
