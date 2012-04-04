@@ -14,6 +14,11 @@ module NaughtyP
       @emitter = Emitter.new(file_name)
     end
 
+    def self.for_file(file_name)
+      class_name = file_name.chomp(File.extname(file_name))
+      Parser.new(IO.read(file_name), class_name)
+    end
+
     def add_variable(name, value = 0)
       local_variable = LocalVariable.new
       local_variable.name = name
@@ -66,12 +71,8 @@ module NaughtyP
     end
 
     def build
-      file_builder = @emitter.build
-      file_builder.generate do |filename, class_builder|
-        File.open(filename, 'w') do |file|
-          file.write(class_builder.generate)
-        end
-      end
+      @emitter.build
+
     end
 
     def eval_expression

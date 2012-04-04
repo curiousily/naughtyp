@@ -1,3 +1,5 @@
+require "java"
+
 def eql_token_type(type)
   eql(token_type_of(token_with_type type))
 end
@@ -48,4 +50,12 @@ end
 
 def parser_for(source_code)
   Parser.new(source_code, "dummy_filename")
+end
+
+def interpretation_should_eql(source_file, expected_result)
+  output_stream = java.io.FileOutputStream.new("out.txt")
+  System.setOut(java.io.PrintStream.new(output_stream))
+  NaughtyP::interpret("examples/" + source_file)
+  IO.read("out.txt").should eql expected_result
+  File.delete("out.txt")
 end
