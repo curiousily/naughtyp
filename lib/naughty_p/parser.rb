@@ -40,6 +40,37 @@ module NaughtyP
       end
     end
 
+    def eval_expression
+      token_value = eval_brackets
+      if token_value.nil?
+        token_value = eval_local_variable(@scanner.next_token).value
+      end
+
+      sign_token = @scanner.peek
+      if sign_token.type == PToken::EOF || sign_token.value == CLOSING_BRACKET || sign_token.type == PToken::SEMICOLON
+        return Integer(token_value)
+      end
+      sign_token = @scanner.next_token
+      case sign_token.value
+        when "+"
+          return token_value + eval_expression
+        when "-"
+          return token_value - eval_expression
+        when "*"
+          return multiply(token_value)
+        when "DIV"
+          return divide(token_value)
+        else
+          raise "Invalid token in expression"
+      end
+    end
+
+    def build
+      @emitter.build
+    end
+
+    private
+
     def eval_read_operator
       variable_token = @scanner.next_token
       if variable_token.type != PToken::IDENT
@@ -77,35 +108,6 @@ module NaughtyP
       @emitter.create_local_variable(@local_variables.length, variable_value)
       add_variable(name, variable_value)
       eval_source
-    end
-
-    def build
-      @emitter.build
-    end
-
-    def eval_expression
-      token_value = eval_brackets
-      if token_value.nil?
-        token_value = eval_local_variable(@scanner.next_token).value
-      end
-
-      sign_token = @scanner.peek
-      if sign_token.type == PToken::EOF || sign_token.value == CLOSING_BRACKET || sign_token.type == PToken::SEMICOLON
-        return Integer(token_value)
-      end
-      sign_token = @scanner.next_token
-      case sign_token.value
-        when "+"
-          return token_value + eval_expression
-        when "-"
-          return token_value - eval_expression
-        when "*"
-          return multiply(token_value)
-        when "DIV"
-          return divide(token_value)
-        else
-          raise "Invalid token in expression"
-      end
     end
 
     def eval_brackets

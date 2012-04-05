@@ -12,6 +12,10 @@ module NaughtyP
       @special_symbols = Set.new %w{( ) + - * :=}
     end
 
+    def self.from_file filename
+      Scanner.new(IO.read(filename))
+    end
+
     def next_token
       skip_white_space
       if out_of_bounds?
@@ -34,6 +38,17 @@ module NaughtyP
       end
       raise UnrecognisedCharacterError, @next_char.to_s
     end
+
+    def peek
+      old_char_position = @current_char_position
+      old_next_char = @next_char
+      result = next_token
+      @current_char_position = old_char_position
+      @next_char = old_next_char
+      result
+    end
+
+    private
 
     def assignment?
       @next_char == ':' && @source_code[@current_char_position + 1] == '='
@@ -90,21 +105,6 @@ module NaughtyP
       read_next_char
       PToken.new(PToken::SEMICOLON)
     end
-
-    def peek
-      old_char_position = @current_char_position
-      old_next_char = @next_char
-      result = next_token
-      @current_char_position = old_char_position
-      @next_char = old_next_char
-      result
-    end
-
-    def self.from_file filename
-      Scanner.new(IO.read(filename))
-    end
-
-    private
 
     def read_next_char
       @current_char_position += 1
