@@ -30,41 +30,53 @@ module NaughtyP
     def eval_source
       next_token = @scanner.next_token
       if next_token.type == PToken::KEYWORD && next_token.value == READ_OPERATOR
-        variable_token = @scanner.next_token
-        if variable_token.type != PToken::IDENT
-          raise "Variable expected"
-        end
-        semicolon_token = @scanner.next_token
-        if semicolon_token.type != PToken::SEMICOLON
-          raise "Semicolon expected"
-        end
-        add_variable(variable_token.value)
-        @emitter.read_int(@local_variables[variable_token.value].store_index)
-        eval_source
+        eval_read_operator
       end
       if next_token.type == PToken::KEYWORD && next_token.value == WRITE_OPERATOR
-        expression_value = eval_expression
-        semicolon_token = @scanner.next_token
-        if semicolon_token.type != PToken::SEMICOLON
-          raise "Semicolon expected"
-        end
-        @emitter.print_int(@local_variables.length, expression_value)
-        eval_source
+        eval_write_operator
       end
       if next_token.type == PToken::IDENT
-        assign_token = @scanner.next_token
-        if assign_token.value != ASSIGN_OPERATOR
-          raise "Assign operator expected"
-        end
-        variable_value = eval_expression
-        semicolon_token = @scanner.next_token
-        if semicolon_token.type != PToken::SEMICOLON
-          raise "Semicolon expected"
-        end
-        @emitter.create_local_variable(@local_variables.length, variable_value)
-        add_variable(next_token.value, variable_value)
-        eval_source
+        eval_identifier(next_token.value)
       end
+    end
+
+    def eval_read_operator
+      variable_token = @scanner.next_token
+      if variable_token.type != PToken::IDENT
+        raise "Variable expected"
+      end
+      semicolon_token = @scanner.next_token
+      if semicolon_token.type != PToken::SEMICOLON
+        raise "Semicolon expected"
+      end
+      add_variable(variable_token.value)
+      @emitter.read_int(@local_variables[variable_token.value].store_index)
+      eval_source
+    end
+
+    def eval_write_operator
+      expression_value = eval_expression
+      semicolon_token = @scanner.next_token
+      if semicolon_token.type != PToken::SEMICOLON
+        raise "Semicolon expected"
+      end
+      @emitter.print_int(@local_variables.length, expression_value)
+      eval_source
+    end
+
+    def eval_identifier(name)
+      assign_token = @scanner.next_token
+      if assign_token.value != ASSIGN_OPERATOR
+        raise "Assign operator expected"
+      end
+      variable_value = eval_expression
+      semicolon_token = @scanner.next_token
+      if semicolon_token.type != PToken::SEMICOLON
+        raise "Semicolon expected"
+      end
+      @emitter.create_local_variable(@local_variables.length, variable_value)
+      add_variable(name, variable_value)
+      eval_source
     end
 
     def build

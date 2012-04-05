@@ -15,10 +15,5 @@ module NaughtyP
       @value = value
     end
 
-    def eql?(other)
-      @type.eql?(other.type) and @value.eql?(other.value)
-    end
-
-
   end
 end
