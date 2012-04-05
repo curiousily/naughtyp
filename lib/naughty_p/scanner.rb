@@ -1,5 +1,5 @@
 require "set"
-require "naughty_p/exceptions/unrecognised_character_error"
+require "naughty_p/errors/unrecognised_character_error"
 
 module NaughtyP
   class Scanner
