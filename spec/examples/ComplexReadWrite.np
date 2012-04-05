@@ -1,0 +1,6 @@
+READ A;
+READ B;
+C := 10 + 5 * 2;
+WRITE A;
+WRITE B;
+WRITE C;

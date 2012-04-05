@@ -19,11 +19,12 @@ module NaughtyP
       Parser.new(IO.read(file_name), class_name)
     end
 
-    def add_variable(name, value = 0)
+    def add_variable(name, value = 0, from_read = false)
       local_variable = LocalVariable.new
       local_variable.name = name
       local_variable.value = value
       local_variable.store_index = @local_variables.length
+      local_variable.from_read = from_read
       @local_variables[name] = local_variable
     end
 
@@ -73,26 +74,39 @@ module NaughtyP
 
     def eval_read_operator
       variable_token = @scanner.next_token
-      if variable_token.type != PToken::IDENT
-        raise "Variable expected"
-      end
-      semicolon_token = @scanner.next_token
-      if semicolon_token.type != PToken::SEMICOLON
-        raise "Semicolon expected"
-      end
-      add_variable(variable_token.value)
+      check_identifier(variable_token.type)
+      check_semicolon
+      add_variable(variable_token.value, 0, true)
       @emitter.read_int(@local_variables[variable_token.value].store_index)
       eval_source
     end
 
+    def check_identifier(token_type)
+      if token_type != PToken::IDENT
+        raise "Variable expected"
+      end
+    end
+
     def eval_write_operator
-      expression_value = eval_expression
+      next_token = @scanner.peek
+      variable = @local_variables[next_token.value]
+      if variable != nil && variable.from_read
+        @scanner.next_token
+        check_semicolon
+        @emitter.print_read_int(variable.store_index)
+      else
+        expression_value = eval_expression
+        check_semicolon
+        @emitter.print_int(@local_variables.length, expression_value)
+      end
+      eval_source
+    end
+
+    def check_semicolon
       semicolon_token = @scanner.next_token
       if semicolon_token.type != PToken::SEMICOLON
         raise "Semicolon expected"
       end
-      @emitter.print_int(@local_variables.length, expression_value)
-      eval_source
     end
 
     def eval_identifier(name)
@@ -167,6 +181,6 @@ module NaughtyP
   end
 
   class LocalVariable
-    attr_accessor :name, :value, :store_index
+    attr_accessor :name, :value, :store_index, :from_read
   end
 end
