@@ -14,47 +14,84 @@ module NaughtyP
 
     def next_token
       skip_white_space
-      return PToken.new(PToken::EOF) if @current_char_position >= @source_code.length
+      if out_of_bounds?
+        return eof_token
+      end
       if digit?(@next_char)
-        value = @next_char.to_s
-        read_next_char
-        while bounded_by?(@current_char_position, @source_code.length) && digit?(@next_char)
-          value += @next_char
-          read_next_char
-        end
-        return PToken.new(PToken::NUMERIC, Integer(value))
+        return next_numeric_token
       end
       if letter?(@next_char)
-        value = @next_char.to_s
-        read_next_char
-        while bounded_by?(@current_char_position, @source_code.length) && (letter?(@next_char) || digit?(@next_char))
-          value += @next_char
-          read_next_char
-          if @keywords.include? value
-            return PToken.new(PToken::KEYWORD, value)
-          end
-        end
-        return PToken.new(PToken::IDENT, value)
+        return next_keyword_or_ident_token
       end
       if @special_symbols.include? @next_char
-        token = PToken.new(PToken::SPECIAL_SYMBOL, @next_char.to_s)
-        read_next_char
-        return token
+        return next_special_symbol_token
       end
-      if @next_char == ':' && @source_code[@current_char_position + 1] == '='
-        read_next_char
-        read_next_char
-        return PToken.new(PToken::SPECIAL_SYMBOL, ":=")
+      if assignment?
+        return next_assignment_token
       end
-      if @next_char == ';'
-        read_next_char
-        return PToken.new(PToken::SEMICOLON)
+      if semicolon?
+        return next_semicolon_token
       end
       raise UnrecognisedCharacterError, @next_char.to_s
     end
 
+    def assignment?
+      @next_char == ':' && @source_code[@current_char_position + 1] == '='
+    end
+
+    def semicolon?
+      @next_char == ';'
+    end
+
+    def out_of_bounds?
+      @current_char_position >= @source_code.length
+    end
+
+    def eof_token
+      PToken.new(PToken::EOF)
+    end
+
+    def next_numeric_token
+      value = @next_char.to_s
+      read_next_char
+      while bounded_by?(@current_char_position, @source_code.length) && digit?(@next_char)
+        value += @next_char
+        read_next_char
+      end
+      PToken.new(PToken::NUMERIC, Integer(value))
+    end
+
+    def next_keyword_or_ident_token
+      value = @next_char.to_s
+      read_next_char
+      while bounded_by?(@current_char_position, @source_code.length) && (letter?(@next_char) || digit?(@next_char))
+        value += @next_char
+        read_next_char
+        if @keywords.include? value
+          return PToken.new(PToken::KEYWORD, value)
+        end
+      end
+      PToken.new(PToken::IDENT, value)
+    end
+
+    def next_special_symbol_token
+      token = PToken.new(PToken::SPECIAL_SYMBOL, @next_char.to_s)
+      read_next_char
+      token
+    end
+
+    def next_assignment_token
+      read_next_char
+      read_next_char
+      PToken.new(PToken::SPECIAL_SYMBOL, ":=")
+    end
+
+    def next_semicolon_token
+      read_next_char
+      PToken.new(PToken::SEMICOLON)
+    end
+
     def peek
-      return PToken.new(PToken::EOF) unless bounded_by?(@current_char_position, @source_code.length)
       old_char_position = @current_char_position
       old_next_char = @next_char
       result = next_token
