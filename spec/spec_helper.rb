@@ -52,10 +52,13 @@ def parser_for(source_code)
   Parser.new(source_code, "dummy_filename")
 end
 
+OUT_FILE = "out.txt"
+EXAMPLES_DIR = "examples/"
+
 def interpretation_should_eql(source_file, expected_result)
-  output_stream = java.io.FileOutputStream.new("out.txt")
+  output_stream = java.io.FileOutputStream.new(OUT_FILE)
   System.setOut(java.io.PrintStream.new(output_stream))
-  NaughtyP::interpret("examples/" + source_file)
-  IO.read("out.txt").should eql expected_result
-  File.delete("out.txt")
+  NaughtyP::interpret(EXAMPLES_DIR + source_file)
+  IO.read(OUT_FILE).should eql expected_result
+  File.delete(OUT_FILE)
 end

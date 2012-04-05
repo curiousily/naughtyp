@@ -83,9 +83,15 @@ describe "Scanner#next_token" do
   end
 
   it "should return 'WRITE' token value when source is new_line_test.np and next_token is called 2 times" do
-    scanner = scanner_from_file("new_line_test.np")
+    scanner = scanner_from_file("test_files/new_line_test.np")
     scanner.next_token
     token_value_of(scanner.next_token).should eql_token_value "WRITE"
+  end
+
+  it "should raise UnexpectedCharacterError error when source is '!,'" do
+    expect do
+      scanner_for("!,").next_token
+    end.to raise_error(UnrecognisedCharacterError)
   end
 end
 

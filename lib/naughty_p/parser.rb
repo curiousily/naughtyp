@@ -43,15 +43,12 @@ module NaughtyP
         eval_source
       end
       if next_token.type == PToken::KEYWORD && next_token.value == WRITE_OPERATOR
-        variable_token = @scanner.next_token
-        if variable_token.type != PToken::IDENT
-          raise "Variable expected"
-        end
+        expression_value = eval_expression
         semicolon_token = @scanner.next_token
         if semicolon_token.type != PToken::SEMICOLON
           raise "Semicolon expected"
         end
-        @emitter.print_read_int(@local_variables[variable_token.value].store_index)
+        @emitter.print_int(@local_variables.length, expression_value)
         eval_source
       end
       if next_token.type == PToken::IDENT
@@ -72,43 +69,20 @@ module NaughtyP
 
     def build
       @emitter.build
-
     end
 
     def eval_expression
-      token = @scanner.next_token
-      if token.value == OPENING_BRACKET
-        result = eval_expression
-        bracket_token = @scanner.next_token
-        if bracket_token.type == PToken::SPECIAL_SYMBOL && bracket_token.value == CLOSING_BRACKET
-          if @scanner.peek.type != PToken::EOF && @scanner.peek.value != CLOSING_BRACKET
-            @scanner.next_token
-            return result + eval_expression
-          end
-          return result
-        else
-          raise "closing bracket expected"
-        end
-      else
-        eval_next(token)
+      token_value = eval_brackets
+      if token_value.nil?
+        token_value = eval_local_variable(@scanner.next_token).value
       end
-    end
 
-    def eval_next(token)
-      token_value = token.value
-      if token.type == PToken::IDENT
-        if @local_variables.has_key? token_value
-          token_value = @local_variables[token_value].value
-        else
-          raise "Unrecognised variable " + token.value
-        end
-      end
-      next_token = @scanner.peek
-      if next_token.type == PToken::EOF || next_token.value == CLOSING_BRACKET || next_token.type == PToken::SEMICOLON
+      sign_token = @scanner.peek
+      if sign_token.type == PToken::EOF || sign_token.value == CLOSING_BRACKET || sign_token.type == PToken::SEMICOLON
         return Integer(token_value)
       end
-      next_token = @scanner.next_token
-      case next_token.value
+      sign_token = @scanner.next_token
+      case sign_token.value
         when "+"
           return token_value + eval_expression
         when "-"
@@ -118,9 +92,36 @@ module NaughtyP
         when "DIV"
           return divide(token_value)
         else
-          #invalid token event
           raise "Invalid token in expression"
       end
+    end
+
+    def eval_brackets
+      token = @scanner.peek
+      if token.value == OPENING_BRACKET
+        @scanner.next_token
+        result = eval_expression
+        bracket_token = @scanner.next_token
+        if bracket_token.value == CLOSING_BRACKET
+          return result
+        else
+          raise "closing bracket expected"
+        end
+      end
+      nil
+    end
+
+    def eval_local_variable(token)
+      token_value = token.value
+      if token.type == PToken::IDENT
+        if @local_variables.has_key? token_value
+          token.value = @local_variables[token_value].value
+          token.type = PToken::NUMERIC
+        else
+          raise "Unrecognised variable " + token.value
+        end
+      end
+      token
     end
 
     def multiply(left_hand_value)
@@ -132,7 +133,7 @@ module NaughtyP
     end
 
     def make_high_precedence_operation(left_hand_value, operation)
-      right_hand_token = @scanner.peek
+      right_hand_token = eval_local_variable(@scanner.peek)
       if right_hand_token.type == PToken::NUMERIC
         @scanner.next_token
         sign_token = @scanner.peek

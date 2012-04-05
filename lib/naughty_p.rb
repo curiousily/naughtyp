@@ -9,9 +9,8 @@ require "jruby"
 
 module NaughtyP
 
-  def self.compile(source_code, file_name)
-    class_name = file_name.chomp(File.extname(file_name))
-    parser = Parser.new(source_code, class_name)
+  def self.compile(file_name)
+    parser = Parser.for_file(file_name)
     parser.eval_source
     file_builder = parser.build
     file_builder.generate do |filename, class_builder|

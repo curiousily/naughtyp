@@ -76,6 +76,10 @@ describe "Parser#eval_expression" do
     eval_expression("2 + (5 + 2 * 2)").should eql 11
   end
 
+  it "should evaluate to 12 when expression is '(10 + 2) * 2 DIV 2'" do
+    eval_expression("(10 + 2) * 2 DIV 2").should eql 12
+  end
+
   it "should evaluate to 11 when expression is '2+9;'" do
     eval_expression("2+9;").should eql 11
   end
@@ -114,5 +118,17 @@ describe "Parser#eval_expression" do
     parser.add_variable("A", 2)
     parser.add_variable("B", 3)
     parser.eval_expression.should eql 5
+  end
+
+  it "should evaluate to 6 when expression is '2 * A;' and A is variable set to 3" do
+    parser = parser_for("2 * A;")
+    parser.add_variable("A", 3)
+    parser.eval_expression.should eql 6
+  end
+
+  it "should evaluate to 3 when expression is '6 DIV A;' and A is variable set to 2" do
+    parser = parser_for("6 DIV A;")
+    parser.add_variable("A", 2)
+    parser.eval_expression.should eql 3
   end
 end

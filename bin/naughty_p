@@ -3,6 +3,6 @@
 $: << File.dirname(File.dirname(__FILE__)) + "/lib"
 require 'naughty_p'
 
-NaughtyP::interpret("spec/ReadWrite.np")
-#NaughtyP::compile("A := 10; WRITE A;", "HelloWorld.np")
+#NaughtyP::interpret("FileName.np")
+#NaughtyP::compile("FileName.np")
 #puts "Compilation successful"

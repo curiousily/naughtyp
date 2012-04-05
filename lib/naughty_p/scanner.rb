@@ -1,4 +1,5 @@
 require "set"
+require "naughty_p/exceptions/unrecognised_character_error"
 
 module NaughtyP
   class Scanner
@@ -47,8 +48,9 @@ module NaughtyP
       end
       if @next_char == ';'
         read_next_char
-        PToken.new(PToken::SEMICOLON)
+        return PToken.new(PToken::SEMICOLON)
       end
+      raise UnrecognisedCharacterError, @next_char.to_s
     end
 
     def peek
