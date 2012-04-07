@@ -56,6 +56,14 @@ describe "Scanner#next_token" do
     next_token_value_of(":=").should eql_token_value ":="
   end
 
+  it "should return KEYWORD token when source contains 'IFF'" do
+    next_token_type_of("IFF").should eql_token_type PToken::KEYWORD
+  end
+
+  it "should return 'IFF' value when source contains 'IFF'" do
+    next_token_value_of("IFF").should eql_token_value "IFF"
+  end
+
   it "should return SpecialSymbol token when source contains 'ABC :=' and next_token is called 2 times" do
     scanner = scanner_for("ABC :=")
     scanner.next_token
@@ -88,9 +96,9 @@ describe "Scanner#next_token" do
     token_value_of(scanner.next_token).should eql_token_value "WRITE"
   end
 
-  it "should raise UnexpectedCharacterError error when source is '!,'" do
+  it "should raise UnexpectedCharacterError error when source is '!'" do
     expect do
-      scanner_for("!,").next_token
+      scanner_for("!").next_token
     end.to raise_error(UnrecognisedCharacterError)
   end
 end

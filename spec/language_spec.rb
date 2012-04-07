@@ -30,4 +30,12 @@ describe "NaughtyP#interpret" do
   it "should write '25\n' to the output when interpreting VariableAssignments.np" do
     interpretation_should_eql("VariableAssignments.np", "25\n")
   end
+
+  it "should write '5\n' to the output when interpreting IffStatement.np" do
+    interpretation_should_eql("IffStatement.np", "5\n")
+  end
+
+  it "should write '8\n' to the output when interpreting IffFalseStatement.np" do
+    interpretation_should_eql("IffFalseStatement.np", "8\n")
+  end
 end

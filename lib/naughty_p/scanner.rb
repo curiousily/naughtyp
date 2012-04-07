@@ -8,8 +8,8 @@ module NaughtyP
       @source_code = source_code.scan(/./)
       @current_char_position = 0
       @next_char = @source_code[@current_char_position]
-      @keywords = Set.new %W(OR DIV MOD AND NOT READ WRITE)
-      @special_symbols = Set.new %w{( ) + - * :=}
+      @keywords = Set.new %W(OR DIV MOD AND NOT READ WRITE IFF)
+      @special_symbols = Set.new %w{( ) + - * := ,}
     end
 
     def self.from_file filename

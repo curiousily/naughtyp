@@ -3,6 +3,7 @@ module NaughtyP
 
     WRITE_OPERATOR = "WRITE"
     READ_OPERATOR = "READ"
+    IFF_OPERATOR = "IFF"
     ASSIGN_OPERATOR = ":="
     SEMICOLON = ";"
     OPENING_BRACKET = "("
@@ -36,6 +37,9 @@ module NaughtyP
       if next_token.type == PToken::KEYWORD && next_token.value == WRITE_OPERATOR
         eval_write_operator
       end
+      if next_token.type == PToken::KEYWORD && next_token.value == IFF_OPERATOR
+        eval_iff_statement
+      end
       if next_token.type == PToken::IDENT
         eval_identifier(next_token.value)
       end
@@ -48,7 +52,7 @@ module NaughtyP
       end
 
       sign_token = @scanner.peek
-      if sign_token.type == PToken::EOF || sign_token.value == CLOSING_BRACKET || sign_token.type == PToken::SEMICOLON
+      if sign_token.type == PToken::EOF || sign_token.value == CLOSING_BRACKET || sign_token.type == PToken::SEMICOLON || sign_token.value == ","
         return Integer(token_value)
       end
       sign_token = @scanner.next_token
@@ -102,6 +106,34 @@ module NaughtyP
       eval_source
     end
 
+    def eval_iff_statement
+      next_token = @scanner.next_token
+      if next_token.value != OPENING_BRACKET
+        raise "Opening bracket expected!"
+      end
+      expression_result = eval_expression
+      next_token = @scanner.next_token
+      if next_token.value != ","
+        raise "Comma expected"
+      end
+      true_expression_result = eval_expression
+      next_token = @scanner.next_token
+      if next_token.value != ","
+        raise "Comma expected"
+      end
+      false_expression_result = eval_expression
+      next_token = @scanner.next_token
+      if next_token.value != CLOSING_BRACKET
+        raise "Closing bracket expected"
+      end
+      check_semicolon
+      if expression_result > 0
+        true_expression_result
+      else
+        false_expression_result
+      end
+    end
+
     def check_semicolon
       semicolon_token = @scanner.next_token
       if semicolon_token.type != PToken::SEMICOLON
@@ -114,10 +146,15 @@ module NaughtyP
       if assign_token.value != ASSIGN_OPERATOR
         raise "Assign operator expected"
       end
-      variable_value = eval_expression
-      semicolon_token = @scanner.next_token
-      if semicolon_token.type != PToken::SEMICOLON
-        raise "Semicolon expected"
+      if @scanner.peek.value == "IFF"
+        @scanner.next_token
+        variable_value = eval_iff_statement
+      else
+        variable_value = eval_expression
+        semicolon_token = @scanner.next_token
+        if semicolon_token.type != PToken::SEMICOLON
+          raise "Semicolon expected"
+        end
       end
       @emitter.create_local_variable(@local_variables.length, variable_value)
       add_variable(name, variable_value)
